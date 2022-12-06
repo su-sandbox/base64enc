@@ -1,4 +1,4 @@
-on: [push, pull_request]
+on: [workflow_dispatch]
 
 name: check
 
@@ -11,35 +11,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macOS-10.15, ubuntu-20.04 ]
+        os: [ ubuntu-22.04 ]
         r-version: [ devel ]
-        include:
-        - os: windows-2022
-          r-version: devel-ucrt
-        - os: windows-2022
-          r-version: release
 
     steps:
       - uses: actions/checkout@v2
 
-      # r-lib/setup-r doesn't setup UCRT properly (yet)
-      - if: ${{ matrix.r-version != 'devel-ucrt' }}
-        uses: r-lib/actions/setup-r@v1
+      - uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r-version }}
 
-      - if: ${{ runner.os == 'Windows' && matrix.r-version == 'devel-ucrt' }}
-        uses: kalibera/ucrt3/actions/r-install@main
-      - if: ${{ runner.os == 'Windows' && matrix.r-version == 'devel-ucrt' }}
-        uses: kalibera/ucrt3/actions/toolchain-install@main
-        with:
-          toolchain-type: base
-
-      - if: ${{ runner.os != 'Windows' }} 
-        uses: s-u/R-actions/tinytex@v1
+      - uses: s-u/R-actions/tinytex@v1
         with:
           flavor: TinyTeX-1
 
       - uses: s-u/R-actions/pkg-check@v1
         with:
           check-flags: --as-cran
+      - name: Create binary
+        run: |
+          JD=`pwd`
+          (cd ../Rlib && tar fcz "$JD/binary.tar.gz" *)
+      
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: binary.tar.gz
+          name: develop
+          tag_name: develop
