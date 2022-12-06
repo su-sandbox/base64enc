@@ -23,11 +23,11 @@ jobs:
       - name: Create binary
         run: |
           JD=`pwd`
-          (cd ../Rlib && tar fcz "$JD/binary.tar.gz" *)
+          (cd ../Rlib && tar fcz "$JD/R-devel-${{ matrix.os }}.tar.gz" *)
       
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: binary.tar.gz
+          files: R-devel-${{ matrix.os }}.tar.gz
           name: develop
           tag_name: develop
