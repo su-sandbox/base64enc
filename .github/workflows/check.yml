@@ -23,6 +23,8 @@ jobs:
       - name: Create binary
         run: |
           JD=`pwd`
+          git tag develop
+          git push origin develop
           (cd ../Rlib && tar fcz "$JD/R-devel-${{ matrix.os }}.tar.gz" *)
       
       - name: Release
